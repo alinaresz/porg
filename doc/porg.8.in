@@ -1,0 +1,294 @@
+.\"----------------------------------------------------------------
+.\" porg.8 - porg man page
+.\"----------------------------------------------------------------
+.\" Copyright (C) 2015 David Ricart <@PACKAGE_BUGREPORT@>
+.\"----------------------------------------------------------------
+.\"
+.TH PORG "8" "@RELEASEDATE@" "porg @PACKAGE_VERSION@" "System"
+.SH NAME
+porg - a source code package organizer
+.SH SYNOPSIS
+\fBporg\fR [OPTIONS] <packages>
+.br
+\fBporg\fR -l [OPTIONS] <package> <command>
+.br
+\fBporg\fR -q <files>
+.SH DESCRIPTION
+.PP
+Porg is a program to aid package management when installing packages from source
+code.
+.PP
+When installing a package, porg may be used in log mode (with option \fB-l\fR)
+to wrap the installation command (e.g. "make install"), and log the created
+files into a text database.
+.PP
+Porg also provides options for printing package information, package files,
+removing packages or querying for the owner of files.
+.PP
+The special option '\fB--\fR' forces and end of option-scanning. This is
+specially useful when entering the install command in log mode.
+.PP
+Mandatory arguments to long options are mandatory to short options too.
+.SH GENERAL OPTIONS
+.TP
+\fB-a, --all\fR
+Apply to all installed packages (not with \fB-r\fR).
+.TP
+\fB-L, --logdir\fR=\fIDIR\fR
+Base log directory. The logs for the installed packages are saved in this
+directory. Default is '@LOGDIR@', unless variable LOGDIR is set
+in the configuration file (type 'man porgrc' for more information).
+.TP
+\fB-v, --verbose\fR
+Verbose output. \fB-vv\fR prints also debugging messages.
+.TP
+\fB-x, --exact-version\fR
+Disable expansion of package version (not with \fB-l\fR).
+.br
+By default, porg automatically expands the package names given as arguments, 
+by adding all the versions of the package that are registered in the porg 
+database. For instance, if foo-1.0  and foo-2.0 are installed, the 
+command 'porg -r foo' would remove both packages, and 'porg -r foo-1' 
+would remove only foo-1.0. 
+.br
+The option \fB-x\fR inhibits this expansion, so that package names must match 
+the basename and the whole version of a registered package.
+.TP
+\fB-h, --help\fR
+Display a help message and exit.
+.TP
+\fB-V, --version\fR
+Display version information and exit.
+
+.SH GENERAL LIST OPTIONS
+These options can be used to list packages or files.
+.TP
+\fB-R, --reverse\fR
+Reverse order while sorting.
+.TP
+\fB-t, --total\fR
+Print totals at the bottom of the list, when appliable.
+When printing total sizes, the sizes of hardlinks to installed files are counted
+only once.
+.TP
+\fB-z, --no-package-name\fR
+Do not print the name of the package when listing. Useful for scripts.
+
+.SH PACKAGE LIST OPTIONS
+.TP
+\fB-s, --size\fR
+Print the installed size of the package. Sizes of hardlinks to installed 
+files are counted only once.
+.TP
+\fB-F, --nfiles\fR
+Print the number of installed files.
+.TP
+\fB-d, --date\fR
+Print the installation date of the package. Double it ('\fB-dd\fR') to print
+also the hour.
+.TP
+\fB-S, --sort\fR=\fIWORD\fR
+Sort the list by WORD: 'name', 'size', 'files' or 'date'.
+
+.SH FILE LIST OPTIONS
+.TP
+\fB-f, --files\fR
+List the files installed by the package.
+.TP
+\fB-s, --size\fR
+Print the size of each file.
+.TP
+\fB-y, --symlinks\fR
+Print the contents of symbolic links.
+.TP
+\fB-S, --sort\fR=\fIWORD\fR
+Sort the list by WORD: 'name' or 'size'.
+
+.SH PACKAGE INFORMATION OPTIONS
+Only one of these options may be used at once.
+.TP
+\fB-i, --info\fR
+Print package information (like summary, author, URL...), if available.
+.TP
+\fB-o, --configure-options\fR
+Print the arguments (command line options and environment variables) passed 
+to the 'configure' script when the package was built.
+.TP
+\fB-q, --query\fR
+Query for the packages that own the files specified as arguments.
+
+.SH PACKAGE LOG OPTIONS
+.TP
+\fB-l, --log\fR
+Enable log mode. If a shell command is given as argument, execute
+and monitor it, logging the created files; otherwise the list of files
+to be logged is read from the standard input. In either case, the relative
+paths are automatically resolved.
+.br
+The list of logged files is printed to the standard output, unless
+any of \fB-p\fR or \fB-D\fR options is used, in which case it is assumed
+that a package is to be registered into the porg database.
+.br
+See \fIEXAMPLES\fR and \fIFILE NAMES WITH SPACES\fR below.
+.TP
+\fB-p, --package\fR=\fIPKG\fR
+Specify the name of the package to be logged. With \fB-v\fR, the list of logged
+files is also printed to the standard error stream. With \fB-vv\fR, porg prints
+detailed information about the install process. This holds for option \fB-D\fR
+too.
+.TP
+\fB-D, --dirname\fR
+Use the name of the current directory as the name of the package to be logged.
+.TP
+\fB-E, --exclude\fR=\fIPATH1:PATH2:...\fR
+Colon-separated list of paths to skip when logging the installed files. Default 
+is '@EXCLUDE@', unless variable \fBexclude\fR is set in the configuration file 
+(type 'man porgrc' for more information).
+.br
+Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
+more details.
+.TP
+\fB-I, --include\fR=\fIPATH1:PATH2:...\fR
+Colon-separated list of paths to scan when logging the installed files. Default 
+is '/', unless variable \fBinclude\fR is set in the configuration file 
+(type 'man porgrc' for more information).
+.br
+Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR below for
+more details.
+.TP
+\fB-j, --log-missing\fR
+By default, when installing a package porg registers only those files 
+that exist in the filesystem right after the installation. With this
+option porg registers also the missing files.
+.TP
+\fB-+, --append\fR
+With \fB-p\fR or \fB-D\fR, if the package is already registered, append the list
+of created files to its log.
+
+.SH PACKAGE REMOVE OPTIONS
+.TP
+\fB-r, --remove\fR
+Remove a package, keeping the shared files and asking for confirmation by
+default.
+.TP
+\fB-U, --unlog\fR
+Unregister the package from the database, without removing any file.
+.TP
+\fB-b, --batch\fR
+Don't prompt for confirmation when removing or unlogging (and assume yes 
+to all questions).
+.TP
+\fB-e, --skip\fR=\fIPATH1:PATH2:...\fR
+Colon-separated list of paths to skip when removing a package. Default is '' 
+(all logged files are removed), unless variable \fBremove_skip\fR is set in the 
+configuration file (type 'man porgrc' for more information).
+.br
+Shell wildcards are allowed in the PATHs. See \fIPATH MATCHING\fR for
+more details.
+
+.SH PATH MATCHING
+Options \fB-I\fR, \fB-E\fR and \fB-e\fR accept a colon-separated list of
+paths, each of which may contain shell-like wildcards (*, ? and [..]).
+Files are matched against each of those paths, following the standard
+shell-like expansion, but with the following exception: If a path in the list
+does not contain any wildcard, and it is a directory, it matches any file
+within that directory.
+.br
+Note that if wildcards are to be used, the whole list of paths must be enclosed
+in single quotes (') to protect it from being expanded by the shell.
+.SH FILE NAMES WITH SPACES
+As of version \fB0.3\fR, porg accepts filenames with spaces when logging 
+package installations. Although IMHO this should be seen as an improvement in
+general terms, it may cause problems when trying to feed 'porg -l' with a list
+of files separated by spaces. For example, the following command:
+.PP
+    echo /bin/foo /bin/bar | porg -l
+.PP
+would try to log the file "/bin/foo /bin/bar" instead of logging /bin/foo and
+/bin/bar separately. To fix this, one may use newlines to separate file names,
+and pass option \fB-e\fR to echo so it honours escape characters, like this:
+.PP
+	echo -e "/bin/foo\\n/bin/bar" | porg -l
+.PP
+or either write the list of files separated by newlines into a temporary file,
+and run:
+.PP
+	cat tmpfile | porg -l
+
+.SH EXAMPLES
+To log the installation of the package 'foo-1.0', which is installed
+with the command 'make -C src install':
+.PP
+    porg -lp foo-1.0 "make -C src install"
+.PP 
+Note that in this example the quotes are required to prevent
+porg to consider '-C' as a command line option.
+The special end-of-option argument '--' may be used for the same purpose:
+.PP
+    porg -lp foo-1.0 -- make -C src install
+.PP
+Use single quotes if the command already contains double quotes:
+.PP
+	porg -lp foo-1.0 'echo "hello world" > /var/log/foo.log'
+.PP
+Alternatively, we can use the basename of the current directory as the name of
+the package to be logged, using the option \fB-D\fR instead of \fB-p\fR:
+.PP
+    porg -lD "make install && make install.man"
+.PP
+If we have forgotten to install a file, it can be added to a previously
+created log with the option \fB-+\fR:
+.PP
+    porg -lp+ foo-1.0 "install bar /bin/bar"
+.PP
+Note that the option \fB-+\fR cannot be used to remove a file from the
+log. For instance, the following command:
+.PP
+    porg -lp+ foo-1.0 "rm /bin/bar"
+.PP
+would not remove the file /bin/bar from the log of foo-1.0.
+.PP
+To avoid such behaviour it is sometimes useful to join up composed
+install commands into one single command and run porg once. For instance,
+imagine that a package installs the file /bin/bar, but we want it to
+be installed in /usr/bin/bar instead. If one runs this:
+.PP
+    porg -lp foo-1.0 make install
+.br
+    porg -lp+ foo-1.0 "mv /bin/bar /usr/bin/bar"
+.PP
+Both files, /bin/bar and /usr/bin/bar remain in the log. This is
+usually not the desired behaviour. As a workaround one can join up
+both commands in one single porg run:
+.PP
+    porg -lp foo-1.0 "make install && mv /bin/bar /usr/bin/bar"
+.PP
+In this case only /usr/bin/bar is logged.
+.PP
+To remove the package foo-3.3, keeping the files in /etc and the files
+ending with ".conf":
+.PP
+    porg -r -e '/etc:*.conf' foo-3.3
+.PP
+You have installed the package 'boo-1.9' in prefix '/opt/boo-1.9', but
+you haven't logged the installation with porg. No problem! Just create a log
+for it thusly:
+.PP
+    find /opt/boo-1.9 | porg -lp boo-1.9
+.PP
+By the way, porg internally converts all package names to lower case; 'FooBar'
+and 'foobar' are the same package.
+
+.SH BUGS
+Due to LD_PRELOAD limitations, porg can't follow the trace of suid programs.
+.br
+For the same reason, porg does not work with programs that statically link libc.
+.SH FILES
+.PP
+\fI@sysconfdir@/porgrc\fR - configuration file
+.br
+\fI@LOGDIR@\fR - default log directory
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
+.SH SEE ALSO
+porgrc(5), porgball(8)

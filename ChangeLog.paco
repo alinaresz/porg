@@ -1,0 +1,867 @@
+2.0.9
+^^^^^
+	+ Fixed minor bug in GPaco.
+
+
+2.0.8 [26 June 2010]
+^^^^^^^^^^^^^^^^^^^^
+	+ GPaco: Change column visibility when clicking on Preferences
+	  buttons. Changed some icons for some menu items, to a more
+	  intuitive ones.
+	+ Pacoball: Removed option --fakeroot (too cryptic).
+	+ Paco: Removed option --ignore-shared.
+	+ Auxiliary scripts are now installed by default, and may be
+	  disabled with --disable-scripts.
+
+
+2.0.7 [30 Aug 2009]
+^^^^^^^^^^^^^^^^^^^
+	+ Simplified debug messages when logging packages.
+	+ Fixed compilation error in Ubuntu (thanks Jerry Jacobs :-)
+	+ [gpaco] Removed "Import RPM" feature.
+	+ [gpaco] Fix package selection issues in the main window.
+	+ [gpaco] Removed "Update" option in package popup menus.
+	+ [gpaco] Added menu "Package" in the main window.
+
+
+2.0.6 [9 Oct 2008]
+^^^^^^^^^^^^^^^^^^
+	Changes in gpaco:
+	
+	+ Moved configuration file from ~/.gpacorc to ~/.config/gpaco/gpacorc.
+	+ Enhanced performance and fixed some minor bugs.
+
+
+2.0.5 [27 Aug 2008]
+^^^^^^^^^^^^^^^^^^^
+	Changes in gpaco:
+	
+	+ Removed size unit setting from the preferences dialog (now sizes are
+	  always displayed in "human readable" format).
+	+ Removed command line option -L.
+	+ Moved items in menu "View" to the "Preferences" dialog.
+	+ Removed option to enable/disable the tooltips in Preferences.
+	+ Removed option to enable/disable the rules hint (now they are always
+	  enabled).
+	+ Upgraded to GTKMM >= 2.12
+	+ bugfix: Avoid bzip2ing of the bzip2 executable or gzipping of the gzip
+	  executable.
+	+ "Select all / unselect all" in the Edit menu.
+
+	Other changes:
+
+	+ Removed option -x|--expand in pacoball.
+
+
+2.0.4 [20 Feb 2008]
+^^^^^^^^^^^^^^^^^^^
+
+	+ [bugfix] BLOCK_SIZE variable in pacorc was not properly recognized
+	  (thanks Kevin Williams).
+	+ [bugfix] When appending files to a log, sizes of missing files were
+	  cleared.
+	+ [pacoball] Archive symlinks to missing files too (thanks Sergei Butakov).
+	+ [rpm2paco] Bugfix: Option -q caused the program to exit.
+
+
+2.0.3 [17 Jul 2007]
+^^^^^^^^^^^^^^^^^^^
+
+	+ Removed repeated text in the man page of paco (thanks Georg
+	  Grafendorfer).
+	+ The option '-x|--expand' has been removed (though it is silently ignored
+	  for backwards compatibility). Now the command line package names are
+	  automatically expanded like in rpm(8), except when logging packages. In
+	  this case the package name must be introduced exactly.
+	+ Do not search for the name of the package in config.log (thanks Mirco
+	  Lorenzoni).
+	+ Fix a doubled DESTDIR bug in doc/Makefile (thanks Matthew Bruenig).
+	+ Rewritten libpaco-log in C. This prevents a glibc installation failure
+	  when building LFS in chapter 6.
+	+ Fixed bug that made paco log compressed files twice in some cases.
+	+ Use RTLD_NEXT in libpaco-log. Fixes bug in some systems (thanks Roland
+	  Schatz).
+	+ When logging installations, files in /proc are always excluded,
+	  regardless of the variable EXCLUDE in pacorc or the arguments to the
+	  option -E|--exclude.
+	+ Better strip the release suffix in rpm2paco and superpaco.
+	+ [gpaco] Fixed several problems in "Import RPM database".
+
+
+2.0.2 [21 Jun 2007]
+^^^^^^^^^^^^^^^^^^^
+
+	+ [gpaco] Simplified the preferences dialog.
+	+ [gpaco] Fixed segmentation fault when the configuration file is missing
+	  (thanks Georg Grafendorfer).
+	+ [rpm2paco] New option "-j|--sync-version".
+
+
+2.0.1 [11 Jun 2007]
+^^^^^^^^^^^^^^^^^^^
+
+	+ Fixed rpm2paco and ocap scripts! (were broken in 2.0.0).
+	+ Fixed compilation error in Fedora7 x86_64 (thanks Sawa).
+	+ New command line option --log-missing.
+	+ [gpaco] New feature "Import RPM database" (it is a graphic
+	  frontend to rpm2paco).
+
+
+2.0.0 [6 Jun 2007]
+^^^^^^^^^^^^^^^^^^
+
+	Both paco and gpaco have been rewritten in C++.
+	Gpaco uses (and depends on) the GTKMM libraries (the C++ bindings for GTK+).
+	There is not backwards compatibility with paco-1 databases, but they can be
+	updated automatically by running 'paco -au' right after installing paco-2.
+	
+	Please note that version 1 databases can be converted to version 2 without
+	any information loss, but the opposite is not true, so it is advisable to
+	backup old databases before upgrading.
+
+	Changes in the user interface:
+	------------------------------
+
+	+ The default install prefix has been restored to /usr/local.
+	+ New command line switch -B, which is an alias for --batch.
+	+ New options --ignore-errors and --ignore-shared (see the man page of paco
+	  for more details).
+	+ The option -U is no longer used along with -r. The same effect can be now
+	  achieved with -rr.
+	+ The debuging messages have been slightly reformatted.
+	+ PACO_INCLUDE and PACO_EXCLUDE environment variables are no longer honoured
+	  when logging package installations. Pacorc options INCLUDE and EXCLUDE
+	  should be used instead.
+	+ The usage of options -c and -N have changed in order to achieve a more
+	  consistent interface. Now they must be used toghether with -f and/or -m.
+	  For example, to list the shared missing files use -cm, and to list all non
+	  shared files use -Nfm.
+	+ New pacorc variables LOG_IGNORE_SHARED and CASE_SENSITIVE (see the man
+	  page of pacorc for more details).
+	+ Always return the exit code of the install command when logging
+	  installations, even if the option --ignore-errors is used (thanks Arthur
+	  Demchenkov).
+	+ [gpaco] New "Strip" feature in the file list context menu (by Victor
+	  Ananjevsky).
+	+ [gpaco] Yellow background for missing files is no longer used. Instead, a
+	  new status column has been added in the list of files, showing whether the
+	  file is installed or not. This column is sortable, allowing for easy
+	  selection of files based on their existence.
+	+ [gpaco] Remember the last selected folder, compression program and
+	  compression level when creating binary packages.
+	+ [rpm2paco] Rewritten in bash (it was bourne shell compatible).
+	+ [rpm2paco] Upgraded to paco-2 databases.
+	+ [rpm2paco] Already logged packages are now skipped by default. The new
+	  option --force must be used to overwrite the old logs.
+	+ [ocap] New option -L|--logdir.
+	+ [ocap] Renamed option -V to -v (for --version).
+	+ [pacoball] The logs of the packages are included in the pacoballs. Then
+	  when extracting a pacoball, the package information is restored again
+	  (only if the extraction is logged, using option --log). Thanks Arthur Demchenkov.
+	+ [pacoball] Pacoballs have now the suffix '.paco.tar.gz' instead of
+	  '-paco.tar.gz'. Those created with gpaco follow the same rule.
+
+	Internal changes / Fixed bugs:
+	------------------------------
+
+	+ The info logs (those in LOGDIR/_info/) have been removed. Now package
+	  information is written in the same log as the list of installed files.
+	  This is what makes paco-2 databases unusable with paco-1.
+	+ The file config.status is not read when logging package installations,
+	  since it is not fairly parsable.
+	+ Properly keep track of directory renaming when logging installations (by
+	  Vladimir A. Pavlov).
+	+ In libpaco-log, the global errno is saved and restored across handling of
+	  system calls, thereby interfering minimally with the install process.
+	  Also, files are logged only upon successful system calls. This fixes some
+	  bugs (thanks Vladimir A. Pavlov).
+	+ Do not print error messages when LOGDIR does not exist or is not writable.
+
+
+1.10.12 [14 Nov 2006]
+^^^^^^^^^^^^^^^^^^^^^
+
+	+ Fixed another double free() bug in paco (thanks Mirco Lorenzoni)
+
+
+1.10.11 [08 Nov 2006]
+^^^^^^^^^^^^^^^^^^^^^
+	
+	+ Removed option '-V|--variable' in paco.
+	+ Removed pacorc option CLEAR_EMPTY. Empty logs are allways removed from
+	  the database.
+	+ Fixed segmentation fault when reading empty lines from the configuration
+	  file (thanks Roebe XXX).
+	+ Updated the paco_bash_completion script (thanks Christian Schneider)
+	+ [gpaco] Fixed a "Too many open files" bug when compressing a large number
+	  of files.
+	+ [gpaco] Fixed "double free" bug.
+
+
+1.10.10 [29 Jul 2006]
+^^^^^^^^^^^^^^^^^^^^^
+
+	This release fixes a bug in release 1.10.9: paco made a segmentation fault
+	when reading package information from setup.py
+	
+
+1.10.9 [28 Jul 2006]
+^^^^^^^^^^^^^^^^^^^^
+
+	Paco:
+	+ Allow shell wildcards in options -e, -E and -I (see the man page).
+	+ Read information from setup.py when installing Python packages.
+	+ Added a blank line between different packages when listing shared files.
+	+ New option '-N|--non-shared', to list the non-shared files of the
+	  packages (thanks Thomas Schwarzgruber).
+
+	Gpaco:
+	+ Remove obsolete info logs when updating the database (as in paco).
+	+ Make the main window insensitive when updating the database.
+	+ Removed the "Update" button in the list of files.
+	+ Fixed an integer overflow in the number of missing files on 64 bit
+	  architectures (thanks Christian Schneider).
+	+ New option for testing the integrity of the binary packages.
+	+ Make the columns in the main window reorderable, and remember its order
+	  between sessions.
+	+ New column "Summary" in the list of packages (thanks Mickael "Mega MoiX").
+	+ New columns "Size %" and "Files %" in the list of packages.
+	+ Use .ini-like syntax for the configuration file (~/.gpacorc)
+	+ Changed selection behaviour in the list of files.
+	+ Multiple package selection is now allowed.
+	+ Minor bugfixes.
+
+	Other:
+	+ Pacoball option '--prefix' renamed to '--root' (--prefix is still
+	  supported to provide backwards compatibility).
+	+ New options '--fakeroot' and '--test' in pacoball.
+	+ New script ocap. It scans the system and finds all files not logged in the
+	  paco database.
+	+ Added the paco_bash_completion script into the distribution.
+	+ Removed configure option '--enable-wordexp'. Only the environment variable
+	  HOME is honoured in pacorc.
+	+ Removed configure options '--enable-ansi' and '--enable-werror'.
+	+ Fixed doubled DESTDIRs in doc/Makefile.am (thanks Mark Rosenstand).
+	
+
+1.10.8 [26 May 2006]
+^^^^^^^^^^^^^^^^^^^^
+
+	General:
+	+ [bugfix]: Compilation errors in Solaris.
+	+ [bugfix]: Segmentation fault if /etc/pacorc is missing.
+	+ Added (more) missing DESTDIRs in Makefiles.
+	+ New configure option '--enable-scripts' (see INSTALL).
+
+	Paco:
+	+ When removing packages, do not ask for confirmation to remove them from
+	  the database. If the package is completely uninstalled it is automatically
+	  removed from the database. If any file is not removed due to errors or
+	  because it is shared, the package is not removed from the database unless
+	  option -U is used.
+	+ Enhanced the man pages.
+
+	Gpaco:
+	+ Integrated the "binary package" dialog into the window of the package, as
+	  a new tab.
+	+ Replaced progress dialogs by progress bars in the status bar.
+	+ Prevent users without write permissions on the paco database to remove,
+	  compress or uncompress files.
+	+ Removed the (dangerous) button "Close" in the remove page.
+
+	Sccripts:
+	+ Removed option '-o' in pacoball. Bugfixes and enhancements.
+	+ Added script superpaco into the main paco distribution. Added a new
+	  option '-n|--no-paco' to install the packages without paco. Fixed a bug
+	  that prevented symlinks and hidden files to be properly installed
+	  (thanks Dan Nicholson and Thomas Schwarzgruber). Other bugfixes.
+	+ Bugfix in pacoball: Input tarballs not recognized.
+
+
+1.10.7 [29 Apr 2006]
+^^^^^^^^^^^^^^^^^^^^
+	+ [bugfix]: symlinks not logged (thanks Tor Olav and Thomas Schwarzgruber).
+	+ New feature in gpaco: removing files can be interrupted with a "Stop"
+	  button, and resumed again with a "Resume" button.
+	+ New option '--owner', which is just a more intuitive alias for '--query'.
+	+ Changed the behaviour of option '-V|--variable' (see the man page).
+	+ Allow '--sort=time' as an alias for '--sort=date' in paco.
+	+ Reintroduced the script pacoball in the main paco distribution.
+
+
+1.10.6 [21 Apr 2006]
+^^^^^^^^^^^^^^^^^^^^
+	+ [bugfix]: gpaco: files could not be manually removed, compressed or
+	  uncompressed.
+	+ [bugfix]: extra line read from info file broke option '-o'. (Thanks
+	  Daniel Eklöf).
+
+
+1.10.5 [4 Apr 2006]
+^^^^^^^^^^^^^^^^^^^
+	+ Fixed compilation errors in NetBSD.
+	+ New configure option "--enable-wordexp" (see INSTALL).
+	+ Fixed a bug in 1.10.4 release that made paco skip /foobar files if
+	  directory /foo had to be excluded.
+	+ Minor bugfixes.
+	+ Upgrade is recommended.
+	
+
+1.10.4 [1 Apr 2006]
+^^^^^^^^^^^^^^^^^^^
+	+ [bugfix]: option '-m' broken (missing files not listed).
+	+ [bugfix]: EXCLUDE'd paths actually not excluded (thanks Kristian Gavran).
+	+ [bugfix]: gpaco crashed when updating inexistent logs.
+	+ Beautified the debugging output when logging packages.
+	+ Restored the configure option "--with-paco-logdir".
+	+ Added configure option "--enable-werror".
+	+ Changed the default install prefix to /usr (was /usr/local).
+	+ [gpaco]: fixed some problems when managing big packages.
+	+ New options BLOCK_SIZE and LOG_IGNORE_ERRORS in pacorc.
+	+ Expand any environment variable in pacorc (not only HOME); and more
+	  (read the man page of pacorc for more information).
+	+ Removed internationalisation.
+	+ Type "make logme" right after installing paco, and it will log the own
+	  paco's installation :-)
+	+ Fixed more missing DESTDIRs in the Makefiles.
+	+ Do not allow users to remove, update, log or unlog packages if they do not
+	  have write permissions on the paco log directory (thanks Kristian Gavran).
+
+
+1.10.3 [4 Mar 2006]
+^^^^^^^^^^^^^^^^^^^
+	+ Fixed missing DESTDIR in doc/Makefile (thanks Dan Nicholson).
+	+ Tested successfully with gcc-4.0.0.
+	+ Removed paco.spec from the tarball. Created paco.pc. This allows for
+	  retrieving the paco log directory after installation with pkg-config,
+	  like this: "pkg-config --variable=logdir paco".
+	+ Allowed the use of option '-x|--expand' when logging packages. If the
+	  expansion leads to more than one package name, paco prints an error
+	  message and exits. See an example in the README file.
+	+ Scripts are no longer included in the distribution. They have been
+	  available in the web site (http://paco.sourceforge.net/downloads.html).
+	+ [bugfix]: temporary files were not always removed at exit.
+	+ Removed the option '--with-paco-logdir' in configure, since it can be set
+	  in the configuration file.
+	+ New options CLEAR_EMPTY and CLEAR_UNINSTALLED for pacorc. See the man page
+	  of pacorc for more information.
+	+ Minor bugfixes.
+
+
+1.10.2 [6 Nov 2005]
+^^^^^^^^^^^^^^^^^^^
+	+ New option '--ignore-errors' in paco (see the man page).
+	+ New configure option '--enable-ansi'.
+	+ Allow the use of rpmunpack in SuperPaco (by Richard Johns). This means
+	  that rpm2cpio is no longer required to install RPM packages.
+	+ Removed reference to sudo conflict, which is not true (thanks Carlos
+	  Vendramini).
+	+ [bugfix]: option '-c' broken!
+	+ [bugfix]: segfault in paco when reading badly formatted logs.
+	+ [bugfix]: problems when creating binary packages in gpaco.
+	+ [bugfix]: gpaco: When updating the database, newly logged packages were
+	  duplicated in the list of packages.
+	+ [bugfix]: segfault when reading long lines from the logs (thanks Mirco
+	  Lorenzoni)
+	+ [bugfix]: SuperPaco had problems when installing RPM packages:
+	  "cp: cannot stat `foo': No such file or directory".
+
+
+1.10.1 [27 Oct 2005]
+^^^^^^^^^^^^^^^^^^^^
+	This release fixes an important bug in version 1.10.0: When logging
+	installations, paths to be excluded were actually not excluded from the
+	logs. Thanks Arthur Demchenkov for catching this horrible bug.
+	
+
+1.10.0 [23 Oct 2005]
+^^^^^^^^^^^^^^^^^^^^
+	*** IMPORTANT: Notes for users of older versions of paco ***
+	************************************************************
+	1) There are changes in the log format. To rebuild the database, run
+	   'paco -au' right after installing this new version.
+	2) The libpaco shared library has been renamed to libpaco-log. Files
+	   /usr/lib/libpaco.* can be removed when upgrading to paco-1.10.0.
+			   
+	General changes
+	---------------
+	+ The configure script can be run from outside the main paco sources
+	  directory (thanks Christian Schneider).
+	+ Added russian translation (by Arthur Demchenkov).
+	+ The syntax of pacorc is more strict. Quotes and spaces are not stripped
+	  from the value of the variables. Type 'man pacorc' for more information.
+	+ Fixed compilation errors in Solaris.
+
+	Changes in paco
+	---------------
+	+ Enhanced the debugging messages when logging or removing packages.
+	+ Resolve intermediate directory symlinks in the names of the logged files
+	  (no more conflicts with /usr/man and /usr/share/man, etc).
+	+ Enhanced the way to collect package information at log time: Builds from
+	  outside the main package sources directory are supported, and the
+	  config.status and .aspec (autopackage) files are scanned.
+	+ When logging packages, the values of CC, CFLAGS, etc... are retrieved only
+	  from the environment, and not from the Makefile.
+	+ [bugfix]: Spurious commented lines in "Description" info field.
+
+	Changes in gpaco
+	----------------
+	+ [bugfix]: configuration file (.gpacorc) not well written at exit.
+	+ [bugfix]: charset encoding problems (thanks Arthur Demchenkov).
+	+ [bugfix]: memory leaks.
+	+ [bugfix]: segfault when removing packages.
+	+ [bugfix]: problems with long package descriptions (thanks Christoph Berg).
+	+ Removed the "maximmum database age" setting in "Preferences". Never update
+	  the database at start.
+	
+
+1.9.6 [23 Sep 2005]
+^^^^^^^^^^^^^^^^^^^
+	+ Fixed a bug on Solaris: "ld.so.1: sh: fatal: /usr/lib/libpaco.: open
+	  failed: No such file or directory".
+
+
+1.9.5 [23 Sep 2005]
+^^^^^^^^^^^^^^^^^^^
+	+ Paco has been successfully tested on NetBSD-2.0 (thanks Tanaka Shin-ya).
+	+ Fixed error codes when using the '-l' option to monitor a command.
+	  Now paco returns: 0 on success, 1 if paco itself fails, and 2 if the
+	  failure comes from the monitorized command (thanks Dan Nicholson).
+	+ Expand variable $HOME (or ${HOME}) in pacorc (thanks XMail-LORD).
+	+ Fixed memory leaks.
+	+ [bugfix]: "true_fopen64 undeclared" (thanks Tanaka Shin-ya).
+	+ [bugfix]: "__unused redefined" (thanks Christian Schneider).
+	+ [bugfix]: Segmentation fault when dealing with filenames containing the
+	  percent ('%') character (thanks Christian Schneider).
+	+ [bugfix]: Fixed some serious bugs in superpaco (ooopss...).
+	+ [bugfix]: "too many open files" when removing packages.
+	
+
+1.9.4 [5 Sep 2005]
+^^^^^^^^^^^^^^^^^^
+	This release fixes a bug in paco-1.9.3: When logging installations, the
+	package information was not properly retrieved.
+
+
+1.9.3 [4 Sep 2005]
+^^^^^^^^^^^^^^^^^^
+	Changes in paco:
+	~~~~~~~~~~~~~~~~
+	+ Removed option '-S|--stdin'. From now on, if the option '-l|--log' is
+	  used without any command, files are read from the standard input, just
+	  like the '-S' option did. Update your scripts!
+	+ The build-time values of CC, CFLAGS and some other variables are now
+	  saved in the database, and retrieved with the new option '-V|--variable'.
+	+ Due to the above new feature, the short option '-V' has changed its
+	  meaning and it's no more used to show version information.
+	+ [bugfix] '-C' option printed 0 shared files for all packages!
+	+ [bugfix] Bogus error messages were printed when removing packages.
+	+ [internal] Use GNU getopt to parse the command line options.
+	+ [internal] Use linked lists for the lists of files.
+	
+	Changes in gpaco:
+	~~~~~~~~~~~~~~~~~
+	+ Added translator credits in the "About" dialog.
+	+ Added accelerator to option "Update database" (Ctrl+U).
+	+ [bugfix] Wrong "parse error" failure when updating the database.
+	+ [bugfix] Newly logged packages were not properly updated when updating
+	  the whole database.
+	+ [bugfix] Bogus error messages were printed when removing packages.
+
+	Other changes:
+	~~~~~~~~~~~~~~
+	+ Replaced the configure option '--enable-scripts' with new options
+	  '--enable-a2paco', '--enable-superpaco' and '--enable-pacoball'.
+	+ New script paco_bash_completion, written by Christian Schneider.
+	+ Let pacoball accept more than one input package.
+	+ New options '-1|--faster', '-9|--better' and '-a|--all' in pacoball.
+	+ Created a man page for pacoball.
+	+ Removed configuration variable DPKGDIR.
+	+ Added Serbian translation (Boban Petrovic).
+	+ Updated French translation (Ookaze BioACobol).
+	+ Updated Catalan translation (me).
+
+
+1.9.2 [03 Aug 2005]
+^^^^^^^^^^^^^^^^^^^^
+	This release uses the full GNU build system: autoconf, automake and libtool.
+	
+	*** IMPORTANT: Due to the use of libtool, paco can't track its own
+	*** installation anymore. See the INSTALL file for more details.
+	
+	General changes:
+	================
+	+ The default log directory can be set at configure time, with the option
+	  '--with-paco-logdir=DIR'.
+	+ The path '/usr/info/dir' has been added to the default value of EXCLUDE.
+	  Now EXCLUDE='/tmp:/usr/src:/usr/info/dir'.
+	+ New configuration variable APPARENT_SIZE (See the man page of pacorc).
+	+ (Apparently, hopefully) ported to Solaris 9.
+
+	I18n:
+	=====
+	+ Internationalizated gpaco.
+	+ Updated French translation (Ookaze BioACobol).
+	+ Updated Catalan translation (me).
+
+	Changes in libpaco:
+	===================
+	+ Added truncate(), truncate64() and creat64() handlers.
+	+ Bugfixes.
+
+	Changes in paco:
+	================
+	+ Removed the '--usage' option and the '?' switch.
+	+ Don't print the date and the size of the package when listing files.
+	
+	Changes in gpaco:
+	=================
+	+ Disallow changing the log directory at runtime (for now).
+	+ Don't permit multiple selection in the list of packages (for now).
+	
+
+1.9.1 [16 Jul 2005]
+^^^^^^^^^^^^^^^^^^^
+	- Fixed various build and install errors.
+	- Added french translation (by Ookaze BioACobol).
+
+
+1.9.0 [12 Jul 2005]
+^^^^^^^^^^^^^^^^^^^
+	General changes:
+	- Use Autoconf build system.
+	- Internationalisation support with GNU gettext. Added catalan translation.
+	- The default configuration directory is now '/usr/etc'. Use the configure
+	  option '--sysconfdir' to change it.
+	- Increased portability.
+	
+	Changes in paco:
+	- Various bugfixes in libpaco.
+	
+	Changes in gpaco:
+	- New "Keep logs" option in the "Remove" page.
+	- Added abbility to create binary packages.
+	- Changed the buttons layout in the "Remove" page.
+	- Permit multiple selection in the list of packages.
+	- Minor bugfixes and enhancements.
+
+	Changes in scripts:
+	- New option '--ball=PATH' in pacoball.
+
+	Thanks Dan Nicholson for testing paco in Solaris.
+	Thanks Jim Gifford for let me test paco in a mips64 machine.
+
+
+1.8.9 [04 Jun 2005]
+^^^^^^^^^^^^^^^^^^^
+	Changes in paco:
+	- Fixed the "Unremoved dangling symlinks" bug. Thanks Jesse S.
+	- Fixed the "Wrong shared files list" bug.
+	- Accelerated the shared file detection code. Also in gpaco.
+	- Changed the default values for the variables INCLUDE and EXCLUDE, which
+	  set the paths to scan/skip when logging the installation of a package.
+	  New default values are:
+		 INCLUDE=/
+		 EXCLUDE=/tmp:/usr/src	('/dev' and '/proc' are implicitly skipped).
+
+  
+1.8.8 [15 May 2005]
+^^^^^^^^^^^^^^^^^^^
+	Changes in paco:
+	- Added abbility to get information also from the .pc (pkg-config) file when
+	  installing a package.
+	- Allow the use of option '-U' with '-r', to force removing the log of the
+	  packages.
+	- Fixed a bug that prevented paco to properly update the database. Thanks
+	  Ookaze BioACobol.
+	
+	Changes in gpaco:
+	- Restore the position of the main window between sessions.
+	
+	Changes in pacoball:
+	- Fixed the "Argument list too long" bug. Thanks Ivo Nedialkov Krastev.
+	- Strip leading '/'s from file names. Thus pacoballs can be unpacked in
+	  different prefixes than the root directory '/'.
+
+
+1.8.7 [30 Apr 2005]
+^^^^^^^^^^^^^^^^^^^
+	- This release fixes a bug that made paco log some files twice when using
+	  the option "+".
+	- Debugging support has been added to the libpaco code too (it must be build
+	  with CFLAGS=-DDEBUG to enable it).
+
+
+1.8.6 [16 Apr 2005]
+^^^^^^^^^^^^^^^^^^^
+	Changes in gpaco:
+	- Added accelerators to some menu items.
+	- New option to show missing sizes as percent in the "Preferences" dialog.
+	- Display dates in UTF8 encoding (thanks Ryurik).
+	- Minor bugfixes.
+
+	Other changes:
+	- Better deal with file sizes (thanks Mirco Lorenzoni & Demchenkov Arthur).
+
+
+1.8.5 [10 Mar 2005]
+^^^^^^^^^^^^^^^^^^^
+	Changes in gpaco:
+	- Use UTF8 encoding for the text in "Properties".
+	- New option '-d|--debug' to print debugging messages on the console.
+	- Restore the size of the main window between sessions.
+	- Upgraded to GTK+-2.6
+	- Removed dependency on GNU getopt.
+	- Minor bugfixes and enhancements.
+
+	Changes in paco:
+	- Disabled option '-vv'.
+	- New option '-e|--skip' (see the man page).
+	- Let option '-o|--configure-options' accept more than one argument.
+	
+	Other changes:
+	- Enhanced the man page and the INSTALL file.
+	- New script 'pacoball' (very simple): Creates binary .tar.bz2 or .tar.gz
+	  packages from installed (and logged) packages.
+	- From now on, scripts are not installed by default. There's a new configure
+	  option '--enable-scripts' to install them.
+	- Minor bugfixes and enhancements in a2paco and superpaco.
+	  
+
+1.8.4 [19 Feb 2005]
+^^^^^^^^^^^^^^^^^^^
+	Changes in gpaco:
+	- Added mnemonics to all buttons and menu items.
+	- New dialog "Search" which does the same as 'paco -q' but graphically.
+	- Show progress bar when compressing/uncompressing more than 1MB.
+
+	Other changes:
+	- Logs ending with '~'	or '.bak' are ignored.
+	- The names of the packages must start with an alphanumeric character.
+	
+	USERS OF PACO < 1.8.0 SHOULD READ "UPGRADE"
+	
+
+1.8.3 [14 Feb 2005]
+^^^^^^^^^^^^^^^^^^^
+	Changes in gpaco:
+	- Added file compression/uncompression support.
+	- Beautified the "Properties" page in the package windows.
+	- New dialog "Preferences". Replaces the old items in "Options", adding
+	  some new features.
+	- "Missing icons" bug fixed.
+
+	Other changes:
+	- Another "rubbish in missing files" bug fixed.
+	- New log format: The information of the packages is stored in separate
+	  logs in directory $LOGDIR/_info, for better manipulation. This change is
+	  automatically applied when updating the paco database with 'paco -au'.
+
+	USERS OF PACO < 1.8.0 SHOULD READ doc/UPGRADE
+
+
+1.8.2 [06 Feb 2005]
+^^^^^^^^^^^^^^^^^^^
+	- This release fixes an important bug in paco-1.8.1, due to a typo: The 
+	  configuration file was not properly parsed.
+	- There's also a new useful option '-o|--configure-options', which prints
+	  the options passed to configure when the package was installed.
+	- Minor bugfixes in gpaco.
+	
+
+1.8.1 [04 Feb 2005]
+^^^^^^^^^^^^^^^^^^^
+	This release fixes the "rubbish in missing files" bug.
+	Thanks MrPeacock.
+	
+
+1.8.0 [03 Feb 2005]
+^^^^^^^^^^^^^^^^^^^
+	IMPORTANT MESSAGE FOR USERS OF PACO < 1.8.0
+	-------------------------------------------
+	This release incorporates two important changes:
+	
+	1) The syntax of the logs has changed. Users of previous versions of paco
+	   should run the 'upgrade' script provided with the paco-1.8.0 tarball
+	   in order to convert the logs to the new format. Type 'upgrade --help'
+	   for more information.
+	   
+	2) New locations for the default configuration files and log directory:
+	   paco conf. file	= /etc/pacorc	(customizable with '--sysconfdir' opt.)
+	   log directory	= /var/log/paco (customizable with '--logdir' opt.)
+	   gpaco conf. file = ~/.gpacorc
+	
+	Thanks Paul Heldens for the aid.
+	
+	Changes in paco
+	---------------
+	- [Bugfix] Sizes of packages bigger than 1MB were wrong.
+	- [Bugfix] Properly deal with defines in .spec files.
+	- Adjust the 'paco -i' output to the screen width.
+	- paco -vv produces debug messages.
+	- Recursively remove empty directories when removing a package (also in
+	  gpaco).
+	- New option '-n|--missing-size', to show the missing size of the packages.
+	  To achieve this, paco keeps the sizes of the missing files in the logs,
+	  hence the change in the log format.
+	  From 1.8.0 on, when listing files, the sizes of the missing ones won't be
+	  '?' anymore. When dealing with logs created by earlier versions, those
+	  sizes will be zero. But for packages logged by paco >= 1.8.0 the original
+	  sizes of the missing files will be shown.
+	- Due to the above new option, there's a new accepted argument to the
+	  option '--sort': it's 'missing-size'. Also the argument 'missing' has
+	  been renamed to 'missing-files'.
+	- Slight change in the '-c' option usage. See the man page.
+	- New option '--usage' to show option summary.
+	- Added long option to '-D' switch. It's '--dirname'.
+	
+	Changes in gpaco
+	----------------
+	- Properly sort the list of packages or files by name (case insensitive).
+	- Added two new columns in the main window, one for the icon and one for
+	  the missing size of the packages.
+	- Show the icon of the package in "Properties".
+	- Renamed the gpaco icon gp.png to gpaco.png. Now it's installed in
+	  DATADIR/pixmaps instead of DATADIR/paco to follow the GNOME conventions.
+	  For the same reason, gpaco.desktop has been created.
+	- Beautified (well I think) the "About gpaco" dialog.
+	- Restore the scrolling status of the package windows after update.
+	- Emulate a console when removing a package (black background, courier
+	  font).
+	- Show a progress bar while updating the database.
+	- Code cleanup!
+	
+	THANKS THE GTK+ TEAM FOR THEIR EFFORT IN GREAT DOCUMENTATION.
+	
+	Other changes
+	-------------
+	- Removed options --include and --exclude from configure and a2paco.
+	- Removed options --logdir and --overwrite from a2paco.
+	- Various bugfixes in superpaco and a2paco.
+	- Directory DATADIR/paco (usually /usr/share/paco) has become obsolete.
+	  Users of this new release of paco may safely remove it.
+
+
+1.7.3 [15 Jan 2005]
+^^^^^^^^^^^^^^^^^^^
+	paco:
+	- Added option -D: When logging a package, use the name of the current
+	  directory as the name of the package.
+	- Added option -S: When logging a package, read the list of files directly
+	  from stdin, instead of following the execution of a command.
+	- Added options -Ccw, to query for the shared files of the packages.
+	- Removed option -e. Now empty directories are removed by default.
+	- Removed option -K. Now the logs are removed when the packages are removed
+	  successfully.
+	
+	gpaco:
+	- Upgraded to gtk+-2.4
+	- Removed "Keep log" and "Remove empty directories" switches from the
+	  "Remove" page.
+	- Removed the gpaco man page.
+	- [Bugfix] Negative total size fixed.
+	- Many other bugfixes. Gpaco was a monster of eating memory.
+	- Other minor improvements.
+	
+	other:
+	- Removed script raw2paco, since the new paco option -S does its job.
+	- Renamed configure option --disable-gtkport to --disable-gpaco.
+	- Renamed configure option --disable-gtkcheck to --disable-gtktest.
+	- [Bugfix] The script SuperPaco behaved weirdly in verbose mode.
+	  
+	Thanks Carlos Vendramini for testing the pre-releases of this version.
+
+
+1.7.2 [29 Nov 2004]
+^^^^^^^^^^^^^^^^^^^
+	- Bugfix: When logging installations, some files are logged twice.
+	- Allow arguments like '2kB' or '3M' to option '-b|--block-size'.
+	- (GUI) Enable rules hints when displaying the files of the packages.
+
+
+1.7.1 [28 Nov 2004]
+^^^^^^^^^^^^^^^^^^^
+	- The command line options have undergone many changes.
+	- Fixed a major bug that made paco unusable on Fedora.
+	- Shared files are properly detected when removing more than one package.
+	- Joined rpm2paco and dpkg2paco scripts into a2paco.
+	- Bugfix: properly log filenames with whitespaces.
+	- Bugfix: removed spurious newlines when reading pacorc.
+	- Remove tmp files on exit or fatal signal.
+	- Added abbility to display the hour of installation as well as the date
+	  in gpaco.
+
+
+1.6 [15 Nov 2004]
+^^^^^^^^^^^^^^^^^
+	- The paco program has been split into two different binaries:
+	  paco (the command line port, not linked with GTK libs), and
+	  gpaco (the GTK port, linked to those libs).
+	- There's a new script called SuperPaco, that installs Debian, RPM
+	  or Slackware binary packages whithout dpkg, rpm or pkgtool (thanks
+	  to Islam Motab for the ideas).
+	- The rest of scripts were improved too.
+	- There's a new configure option '--disable-scripts'.
+	- There's a new paco option '-z|--no-package-name'. 
+	- All man pages were moved to section 8, except pacorc one, that was
+	  moved to section 5.
+	- New fancy icon gp.png for gpaco.
+	- Minor bugfixes / code enhancements.
+
+
+1.5 [12 Oct 2004]
+^^^^^^^^^^^^^^^^^
+	- New scripts dpkg2paco and rpm2paco, that build paco logs from a local
+	  RPM or dpkg database.
+	- New script raw2paco, that creates paco logs from a raw list of files.
+	- Added icons beside the tab titles in the package windows (GUI).
+	- Beautyfied the "info" output (console) and the Properties page (GUI).
+	- Added option "Set log directory to default" in the GUI.
+	- Minor bugfixes.
+
+
+1.4 [26 Sep 2004]
+^^^^^^^^^^^^^^^^^
+	- New '-y|--symlink' option, that shows the contents of symbolic links
+	  when listing files.
+	- The extended package information is also retrieved from the .lsm
+	  file (Linux Software Map).
+	- Read config.log when installing a package, and get the options passed
+	  to configure. (by Florian Duraffourg).
+	- A man page was created for pacorc.
+	- The log directory can now be set in pacorc, using the LOGDIR variable.
+	- The configure script is now sh compliant (tested with ash-0.4.0).
+	- Minor bugfixes and code cleanups.
+
+
+1.3.1 [13 Sep 2004]
+^^^^^^^^^^^^^^^^^^^
+	- Minor (and not so minor) bugs were fixed.
+	- There's a new option '-n|--no-expand'.
+	- Portability was increased.
+
+
+1.3 [09 Sep 2004]
+^^^^^^^^^^^^^^^^^
+	- Added abbility to get extended package information when logging
+	  packages. The info is read from the .spec file (if it exists).
+	  There's a new option '-i|--info' in the console mode ("Properties"
+	  in the GUI), which shows the stored information.
+	- The (stupid) dependency on curses has been removed.
+
+
+1.2 [03 Sep 2004]
+^^^^^^^^^^^^^^^^^
+	- [Bugfix] Can't resolve relative paths in log or query modes.
+	- [Bugfix] Can't rename files in different filesystems. (thanks Pierre-
+	  Francois Honore).
+	- (GUI) "Remove" tab improved, added "Options" menu, added tool tips...
+	- There are some new command line options.
+	- Packages are listed in columns by default (ls style).
+	- The configure tests were improved.
+
+
+1.1 [21 Aug 2004]
+^^^^^^^^^^^^^^^^^
+	First public release.
+

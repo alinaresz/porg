@@ -1,0 +1,262 @@
+# vim:ts=4:ft=sh:
+#-------------------------------------------------------------------------------
+# porg bash completion support
+# Copyright 2006 Christian Schneider <mail@chrschn.de>
+# License: GNU GPL v2 or later
+#-------------------------------------------------------------------------------
+#
+# This file provides bash completion support for porg.
+# 
+# It should be copied into directory /etc/bash_completion.d/ to be operative.
+# Also, the file /etc/bash_completion or /usr/share/bash-completion/bash_completion
+# must exist, and ~/.bashrc has to contain some additional commands to activate the
+# bash completion support, more or less thusly:
+#
+# 8<---------------------------------------
+#	# Enable bash completion
+#	if [ -f /etc/bash_completion ]; then
+#		source /etc/bash_completion
+#	fi
+# --------------------------------------->8
+#
+# Porg bash completion means that, for example, if you type:
+#
+#	$ porg <TAB> <TAB>
+#
+# bash will print a list of all packages logged in the porg database.
+# And if you type:
+#
+#	$ porg -- <TAB> <TAB>
+#
+# bash will print a list of all available long options for porg.
+#
+#-------------------------------------------------------------------------------
+#
+# For more information about programmable shell completion, read the
+# Ian Macdonald's excellent guide "Working more productively with bash 2.x/3.x":
+#
+#	--> http://www.caliban.org/bash/index.shtml
+#
+#-------------------------------------------------------------------------------
+
+
+have porg &&
+_porg()
+{
+	local prev cur pkgs longopts longopts_eq shortopts sorts vars vars_complete var
+
+	# long options:
+	longopts='--all \
+		--append \
+		--batch \
+		--configure-options \
+		--date \
+		--dirname \
+		--exact-version \
+		--exclude=DIR \
+		--files \
+		--help \
+		--include=DIR \
+		--info \
+		--log \
+		--log-missing \
+		--logdir=DIR \
+		--no-package-name \
+		--package=PKG \
+		--query \
+		--remove \
+		--reverse \
+		--size \
+		--skip=DIR \
+		--sort=WORD \
+		--symlinks \
+		--total \
+		--unlog \
+		--verbose \
+		--version'
+
+	# long options with an equals
+	longopts_eq='--exclude= \
+		--include= \
+		--logdir= \
+		--package= \
+		--skip= \
+		--sort='
+
+
+	# shrt options:
+	shortopts='-+ \
+		-a \
+		-b \
+		-d \
+		-D \
+		-e \
+		-E \
+		-f \
+		-F \
+		-h \
+		-i \
+		-I \
+		-j \
+		-l \
+		-L \
+		-o \
+		-p \
+		-q \
+		-r \
+		-R \
+		-s \
+		-S \
+		-t \
+		-U \
+		-v \
+		-V \
+		-x \
+		-y \
+		-z'
+
+
+	# parameters for the --sort option
+	sorts="name date time size files"
+
+	COMPREPLY=()
+	prev=${COMP_WORDS[COMP_CWORD-1]}
+	cur=${COMP_WORDS[COMP_CWORD]}
+
+	# first parameter on line and not an option?
+	if [ $COMP_CWORD -eq 1 ] && [[ "$cur" != -* ]]; then
+		pkgs=$(porg -a 2>/dev/null)
+		COMPREPLY=( $(compgen -W "$pkgs" $cur) )
+		return 0
+	fi
+	
+
+	# handle completion based on previous long option
+	# ignore previous parameter if it is a long option with a "="
+	if [ $COMP_CWORD -ge 1 ] && [[ "$prev" == --* ]]; then
+
+		# expand according to prev parameter
+		case "${prev#--}" in
+	
+			exclude | include | logdir | skip) 
+				_filedir -d
+				return 0
+				;;
+
+			sort)
+				COMPREPLY=( $(compgen -W "$sorts" $cur) )
+				return 0
+				;;
+
+			# This parameters expect a package
+			exact-version | unlog | date | size | \
+			files | symlinks | size | \
+			info | configure-options | package)
+				pkgs=$(porg -a 2>/dev/null)
+				COMPREPLY=( $(compgen -W "$pkgs" $cur) )
+				return 0
+				;;
+
+			query)
+				_filedir
+				return 0
+				;;
+		esac
+	fi
+
+	# handle completion based on previous short option
+	if [ $COMP_CWORD -ge 1 ] && [[ "$prev" == -* ]] && [[ "$prev" != --* ]]; then
+			 
+		# expand according to prev parameter
+		case "${prev#-}" in
+			
+			*U* | *F* | *d* | *f* | *y* | \
+			*i* | *o* | *r* | *p* | *x*)
+				pkgs=$(porg -a 2>/dev/null)
+				COMPREPLY=( $(compgen -W "$pkgs" $cur) )
+				return 0
+				;;
+
+			*q*)
+				_filedir
+				return 0
+				;;
+
+			*S*)
+				COMPREPLY=( $(compgen -W "$sorts" $cur) )
+				return 0
+				;;
+
+			*L* | *e* | *I* | *E*)
+				_filedir -d
+				return 0
+				;;
+		esac
+	fi
+
+	# Completions on current option. At first we must complete on long options
+	# expecting a parameter seperated by a "=".
+	case "$cur" in		
+	
+		# Complete on --{in,ex}clude, --logdir, --skip option
+		--exclude=* | --include=* | --logdir=* | --skip=*)
+			cur=${cur#*=}
+			_filedir
+			return 0
+			;;
+	
+		# Complete on --package option
+		--package=*)
+			pkgs=$(porg -a 2>/dev/null)
+			COMPREPLY=( $(compgen -W "$pkgs" -- ${cur#*=}) )
+			return 0
+			;;
+	
+		# Complete on --sort option
+		--sort=*)
+			COMPREPLY=( $(compgen -W "$sorts" -- ${cur#*=}) )
+			return 0
+			;;
+	
+		# Expand some options together with an equals
+		--exc* | --inc* | --logd* | --p* | --sk* | --so* | --log-m* )
+			# Generate dummy long options with an equals and two choices
+			vars_complete=""
+			for var in $longopts_eq; do 
+				vars_complete="$vars_complete $(echo "${var}1 ${var}2" | grep "^$cur")"
+			done
+			COMPREPLY=( $vars_complete )
+			return 0
+			;;
+	
+
+		# complete on all unspecific options
+		-*)
+			COMPREPLY=( $(compgen -W "$shortopts $longopts" -- $cur) )
+			return 0
+			;;
+	esac
+
+
+	# No completions found. First check if we have a command that we can complete
+	# on, like "make"
+	if [ -n "$prev" ] && [[ "$prev" != -* ]]; then
+		# Extract the function name for the completion function on that command	
+		var=$(complete -p $prev 2>/dev/null)
+		
+		if [ -z "${var/*-F *}" ]; then
+			var=${var##*-F }
+			var=${var%% *([_a-zA-Z0-9])}
+			# execute the command
+			$var
+		else
+			_command
+		fi
+	else
+		_command
+	fi
+
+	return 0
+}
+[ "$have" ] && complete -F _porg porg
+

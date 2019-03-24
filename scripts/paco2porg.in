@@ -1,0 +1,177 @@
+#!/bin/bash
+#-----------------------------------------------------------------------
+# paco2porg - imports paco logs into a porg database.
+#-----------------------------------------------------------------------
+# This file is part of the package porg
+# Copyright (C) 2015 David Ricart
+# For more information visit http://porg.sourceforge.net
+#----------------------------------------------------------------------
+
+me=$(basename $0)
+
+sed_cmd=@SED@
+
+die()	{ echo "$me: $*"; exit 1; }
+sayf()	{ [ "$opt_verb" ] && printf "$*"; }
+
+do_help()
+{
+cat << EOF
+$me - imports paco logs into a porg database.
+
+Usage:
+  $me [OPTIONS]
+
+Options:
+  -h, --help              Display this usage message and exit.
+  -V, --version           Display version information and exit.
+  -v, --verbose           Explain what is being done.
+  -f, --force             Force overwrite of existing porg logs.
+      --paco-logdir=DIR   Read paco logs from directory DIR
+                          (default is $paco_dir).
+      --porg-logdir=DIR   Write porg logs into directory DIR
+                          (default is $porg_dir).
+
+Note:
+  Short options cannot be joined up; for instance: '-vf' is not correct,
+  type '-v -f' instead.
+
+EOF
+	exit 0
+}
+
+# Get version of porg
+
+porg_version=$(porg --version | grep --only-matching '^porg[^ ]*') || exit 1
+
+# Default log directories
+
+for p in paco porg; do
+	logdir=
+	for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
+		if [ -f $dir/${p}rc ]; then
+			logdir=$($sed_cmd -n '/^LOGDIR=/ s///p' $dir/${p}rc 2>/dev/null)
+			break;
+		fi
+	done
+	eval ${p}_dir=${logdir:-/var/log/$p}
+done
+
+# Parse the command line
+
+while [ "$1" ]; do
+	case $1 in
+		-v|--verbose) 	opt_verb=-v;;
+		-f|--force)		opt_force=-f;;
+		-V|--version)	porg --version | sed "s/^porg/$me/"; exit 0;;
+		--paco-logdir=*)
+			paco_dir=${1#*=}
+			[ "$paco_dir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+		--porg-logdir=*)
+			porg_dir=${1#*=}
+			[ "$porg_dir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+		*) do_help;;
+	esac
+	shift
+done
+
+# Check directory permissions
+
+[ -d $paco_dir ] || die "'$paco_dir': No such directory"
+[ -r $paco_dir ] || die "'$paco_dir': Permission denied"
+[ -d $porg_dir ] || die "'$porg_dir': No such directory"
+[ -w $porg_dir ] || die "'$porg_dir': Permission denied"
+
+# Process the packages
+
+sayf "Importing packages from '$paco_dir' to '$porg_dir'\n"
+
+for paco_log in $(find $paco_dir -maxdepth 1 -type f '!' -name '.*'); do
+
+	pkg=$(basename $paco_log)
+	
+	sayf "${pkg}... "
+
+	# check for '#!paco' header
+	if ! (head -1 $paco_log | grep --quiet '^#!paco'); then
+		sayf "paco header missing, skipped\n"
+		continue
+	fi
+
+	porg_log=$porg_dir/$(echo $pkg | tr "[:upper:]" "[:lower:]")
+
+	if [ -z "$opt_force" -a -e $porg_log ]; then
+		sayf "\n"
+		read -p "  $porg_log already exists; do you wish to overwrite it (y/N)? "
+		[ "$REPLY" = y -o "$REPLY" = Y ] || continue
+		sayf "${pkg}... "
+	fi
+
+	# Actual import:
+
+	# 1) Info header
+
+	echo '#!'$porg_version'' > $porg_log
+	
+	$sed_cmd -n 's/^#d:/#t:/p' $paco_log >> $porg_log
+
+	line=$($sed_cmd -n '/^##:/ s///p' $paco_log)
+	echo "#s:$(($(echo $line | cut -s -f 1-2 -d '|' --output-delimiter=+)))" >> $porg_log
+	echo "#f:$(($(echo $line | cut -s -f 3-4 -d '|' --output-delimiter=+)))" >> $porg_log
+	
+	echo "#a:$($sed_cmd -n '/^#:Author: */  s///p' $paco_log)" >> $porg_log
+	echo "#S:$($sed_cmd -n '/^#:Summary: */ s///p' $paco_log)" >> $porg_log
+	echo "#u:$($sed_cmd -n '/^#:URL: */     s///p' $paco_log)" >> $porg_log
+	echo "#l:$($sed_cmd -n '/^#:License: */ s///p' $paco_log)" >> $porg_log
+
+	(grep '^#c:' $paco_log || echo '#c:') >> $porg_log
+	(grep '^#i:' $paco_log || echo '#i:') >> $porg_log
+
+	desc='^#:Description$'
+	$sed_cmd -n "/^#:/ { /$desc/,\$ { /$desc/! s/#:/#d:/p } }" $paco_log \
+	| $sed_cmd '1 { /^#d:$/d }; $ { /^#d:$/d }' >> $porg_log
+	echo '#d:' >> $porg_log
+
+	# 2) Logged files
+
+	for buf in $($sed_cmd -n '/^-\?\// s//\//p' $paco_log); do
+		
+		path=${buf%%|*}
+		size=0
+		symlink=
+
+		size_raw=$(echo $buf | cut -f2 -d '|')
+		size_gz=$(echo $buf | cut -f3 -d '|')
+		size_bz2=$(echo $buf | cut -f4 -d '|')
+
+		if [ "$size_raw" -ge 0 ]; then
+			size=$size_raw
+		elif [ "$size_raw" = -1 ]; then
+			symlink=$(readlink $path)
+		elif [ "$size_gz" -ge 0 ]; then
+			path=${path}.gz
+			size=$size_gz
+		elif [ "$size_gz" = -1 ]; then
+			path=${path}.gz
+			symlink=$(readlink $path)
+		elif [ "$size_bz2" -ge 0 ]; then
+			path=${path}.bz2
+			size=$size_bz2
+		elif [ "$size_bz2" = -1 ]; then
+			path=${path}.bz2
+			symlink=$(readlink $path)
+		fi
+
+		[ "$symlink" ] && size=${#symlink}
+		
+		echo "$path|$size|$symlink" >> $porg_log
+
+	done
+	sayf "done\n"
+
+done
+
+exit 0
+

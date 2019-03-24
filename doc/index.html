@@ -1,0 +1,203 @@
+<!-- vim:ts=2
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+	
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+	<title>porg - a source code package organizer</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8">
+	<meta name="keywords" content="porg,package manager,source code,ubuntu,linux,grop,paco,gpaco">
+	<link rel="shortcut ico" href="grop.png">
+	<link rel="icon" href="grop.png">
+</head>
+
+<body style="
+	margin: 					4%;
+	font-family:			monospace,courier;
+	font-size:				small;
+	background-color:	black;
+	color:						white;"
+>
+
+<img
+	src="porg.png"
+	alt="p*org"
+	border="3"
+	style="border-color: #8fbc8f;"
+/>
+
+<br/><br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">What's porg?</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/><br/>
+
+Porg (formerly known as <i>paco</i>), is a program to aid management of software
+packages installed from source code. 
+<br/><br/>
+After the installation of such packages, one is usually left with having no idea of 
+what it was installed and where it all went, making it difficult to 
+uninstall the package in the future.
+Porg was written to solve this problem in a quite simple fashion.
+<br/><br/>
+When installing a package from sources, porg wraps the install command (e.g. "make 
+install"), and saves installation information into a text database.
+<br/><br/>
+The following sequence of commands exemplify a typical installation of a package
+named foo-1.3:
+<br/><br/>
+<font color="lightgreen"><i>
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>$</b> tar xvf foo-1.3.tar.gz<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>$</b> cd foo-1.3<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>$</b> ./configure<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>$</b> make<br/>
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>$</b> sudo porg -lp foo-1.3 "make install"
+</i></font>
+<br/><br/>
+After the above commands, and provided that everything went fine, the program 
+foo-1.3 will be installed into the system, and registered into the porg database. 
+One can check it by simply typing the following command, which would list the 
+files installed by the package:
+<br/><br/>
+<font color="lightgreen"><i>
+	&nbsp;&nbsp;&nbsp;&nbsp;<b>$</b> porg -f foo-1.3
+</i></font>
+<br/><br/>
+Porg also provides options for listing packages, sizes, file counts, 
+removing packages or printing package information. For more information just
+<br/><br/>
+<a href="https://sourceforge.net/projects/porg/files/"><img src="download.png" width="100%" border="0" alt="DOWNLOAD IT!"></a>
+
+<br/><br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">Changes from the last version of paco</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/>
+
+<ul><li>
+	Disabled the options for removing shared files when uninstalling a
+	package, both in porg and grop. Now shared files are never removed,
+	as it ougth to be.
+</li><li>
+	Disabled listing of shared files.
+</li><li>
+	Simplification of the GUI.
+</li><li>
+	Simplification of the package database. No need to update it anymore.
+</li><li>
+	Major code enhancements and cleanup.
+</li><li>
+	Additionally, all changes documented in the Changelog.
+</li></ul>
+
+Paco users can import old paco logs into the porg database with the script
+paco2porg included in the porg distribution.
+
+<br/><br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">Technichal details</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/><br/>
+To keep track of the files installed by the packages, porg loads a shared library
+before installation by using the environment variable LD_PRELOAD
+(or DYLD_INSERT_LIBRARIES in MacOS). During
+the installation, this library catches the system calls that cause filesystem alterations
+(like open, link, rename, ...), and logs the created files into a text file.
+<br/><br/>
+Since the preloaded library is used only by the specific installation process, the
+created logs are not contaminated with files created by any other process. 
+Thus porg can be used to track parallel installations.
+<br/><br/>
+Please note that porg does not work on systems in which the executables involved in the
+installation of the packages (mv, cp, install...)
+are statically linked against libc, like FreeBSD and OpenBSD.
+
+<br/><br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">Grop</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/><br/>
+
+Grop is the graphic interface of porg. It uses and depends on the GTKMM
+library (version 3.4.0 or later). 
+It's not meant to be a replacement of porg, since it lacks some 
+important features like logging package installations, but it allows for 
+manipulating the installed packages in a more comfortable way.
+<br/><br/>
+Grop is installed by default, unless option "--disable-grop" is pased to
+configure.
+
+<br/><br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">Auxiliary scripts</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/><br/>
+
+The porg distribution provides the following auxiliary scripts:
+<br/><br/>
+<ul><li>
+	<b>paco2porg</b>
+	<br/><br/>
+	A shell script that imports paco logs into the porg database.
+	<br/><br/>
+</li><li>
+	<b>porgball</b>
+	<br/><br/>
+	A shell script that creates binary tarballs (or "porgballs") from
+	packages that are logged in the porg database.
+	It can be used also to reinstall packages by extracting the files from
+	previously created porgballs.
+	<br/><br/>
+</li><li>
+	<b>porg_bash_completion</b>
+	<br/><br/>
+	This file, written by Christian Schneider, provides bash completion support 
+	for porg, in systems that have programmable bash completion enabled.
+</li></ul>
+
+<br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">License</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/><br/>
+Copyright &copy; 2016 David Ricart.
+<br/>
+Porg is protected by the GNU General Public License.
+<br/>
+Look at the COPYING file for more details.
+
+<br/><br/><br/>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+	<font size="+1" color="#8fbc8f">Authors</font>
+	<font color="#336666" size="+2"><b>&ast;</b></font>
+<br/><br/>
+
+The creator and maintainer of porg is David Ricart &lt;<i>icnelis@&ast;</i>&gt;
+(where <i>&ast; = gmail.com</i>).
+<br/><br/>
+I'd like to thank all the males that have contributed to the 
+development of porg. A complete list of them can be found in the AUTHORS file.
+
+<br/><br/><br/>
+<hr size="3" color="#336666">
+<br/>
+
+<table width="100%">
+	<td>
+		<a href="http://sourceforge.net/"><b>sourceforge.net</b></a>
+	</td><td align="right">
+		<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+			<input type="hidden" name="cmd" value="_s-xclick">
+			<input type="hidden" name="hosted_button_id" value="4CA2KC8D6FMWW">
+			<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="DONATE">
+			<img alt="" border="0" src="https://www.paypalobjects.com/es_ES/i/scr/pixel.gif" width="1" height="1">
+		</form>
+	</td>
+</table>
+<br/>
+
+</body>
+
+</html>

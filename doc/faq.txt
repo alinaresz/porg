@@ -1,0 +1,46 @@
+OooooooooooooooooooooooooooooO
+  Frequently Asked Questions
+OooooooooooooooooooooooooooooO
+
+
+Q1: When building LFS, porg does not properly log the installation of glibc
+    in chapter 6 (some files are not logged)
+
+R1: This is because in the chapter 6 some of glibc files are installed
+	using statically linked sln. To have a proper glibc log you can run the
+	following in chroot after installing glibc:
+
+		find /lib -type l | while read name
+		do
+			if [ "$(porg -f glibc | grep "$(readlink $name)")" != "" ]
+			then
+				echo $name
+			fi
+		done | porg -lp+ glibc-<GLIBC_VERSION>
+
+	Or the following simpler command, if you run it right after installing
+	glibc, and before installing any other package:
+        
+		find /lib | porg -lp+ glibc-<GLIBC_VERSION>
+
+
+Q2: Is it safe to launch porg with sudo?
+
+R2: Yes. Here you can see a thread in the paco mailing list that discusses this
+    issue:
+
+	http://sourceforge.net/mailarchive/message.php?msg_name=op.s0crq8an4bwnuy%40slack.homenet
+
+
+Q3: Is it safe to launch sudo with porg?
+
+R3: No. For example the command:
+
+        porg -lp foobar-1.0 "sudo make install"
+
+    would not produce any error message, and the package would be actually
+    installed, but porg would not be able to monitor the installation and no
+    files would be logged.
+    This is due to LD_PRELOAD limitations on suid programs like sudo.
+
+

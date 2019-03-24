@@ -1,0 +1,112 @@
+.\"----------------------------------------------------------------
+.\" porgball.8 - porgball man page
+.\"----------------------------------------------------------------
+.\" Copyright (C) 2015 David Ricart <@PACKAGE_BUGREPORT@>
+.\"----------------------------------------------------------------
+.\"
+.TH PORGBALL "8" "@RELEASEDATE@" "porg @PACKAGE_VERSION@" "System"
+.SH NAME
+porgball - Binary package support for porg(8).
+.SH SYNOPSIS
+\fBporgball\fR [OPTIONS] [-a|<packages>]
+.br
+\fBporgball\fR -e [OPTIONS] <porgballs>
+.SH DESCRIPTION
+.PP
+By default, \fBporgball\fR may be given one or more
+package names as arguments, and for each of those packages it creates
+a binary tarball containing all the currently
+installed files. For this to work the packages have to be
+registered in the porg database.
+.br
+Leading slashes ('/') are stripped from the paths of the files in the
+tarballs, so they can be extracted into user-defined directories.
+.PP
+With option \fB-e\fR, \fBporgball\fR admits one or more previously
+created tarballs ("porgballs") as arguments, and installs them into the
+system, optionally logging the installation with porg(8).
+.PP
+\fBNote\fR: Options cannot be joined up, for instance: '\fB-af\fR' is not correct,
+type '\fB-a -f\fR' instead.
+.PP
+Mandatory arguments to long options are mandatory for short options too.
+.SH GENERAL OPTIONS
+.TP
+\fB-h, --help\fR
+Show usage information and exit.
+.TP
+\fB-v, --verbose\fR
+Explain what is being done.
+.TP
+\fB-V, --version\fR
+Print version information and exit.
+.TP
+\fB-L, --logdir\fR=\fIDIR\fR
+Porg log directory. Default is '@LOGDIR@', unless option LOGDIR is set
+in \fBporgrc(5)\fR.
+.SH PORGBALL CREATION OPTIONS
+.TP
+\fB-a, --all\fR
+Create a porgball for each package logged in the porg database.
+.TP
+\fB-X, --exact-version\fR
+Disable expansion of package version.
+.br
+By default, porgball automatically expands the package names given as arguments, 
+by adding all the versions of the package that are registered in the porg 
+database.
+.br
+The option \fB-X\fR inhibits this expansion, so that package names must match 
+the basename and the whole version of a registered package.
+.TP
+\fB-d, --directory\fR=\fIDIR\fR
+Create the porgballs in directory DIR (default is '.').
+.TP
+\fB-g, --gzip\fR
+Compress with gzip (default).
+.TP
+\fB-b, --bzip2\fR
+Compress with bzip2.
+.TP
+\fB-x, --xz\fR
+Compress with xz.
+.TP
+\fB-#\fR
+Set the compression level (speed/quality balance). '#' is a number between 1
+(faster compression) and 9 (best compression). Default is 9.
+.TP
+\fB--fast\fR
+An alias for -1.
+.TP
+\fB--best\fR
+An alias for -9.
+.TP
+\fB-f, --force\fR
+Force overwrite of existing output files.
+.TP
+\fB-t, --test\fR
+Test intergity of the porgball after creating it.
+.TP
+\fB-n, --no-porg-suffix\fR
+Do not append '.porg' suffix to the name of the porgballs.
+For instance, create 'foo-1.0.tar.gz' instead of 'foo-1.0.porg.tar.gz'.
+.SH PORGBALL EXTRACTION OPTIONS
+.TP
+\fB-e, --extract\fR
+Extract (install) the given porgballs, in directory '/' by default.
+.TP
+\fB-l, --log\fR
+Log the file extraction with porg, retrieving the appropiate
+package name from the name of the porgball.
+.TP
+\fB-d, --directory\fR=\fIDIR\fR
+Extract the files into directory DIR (as the option -C in tar).
+.SH FILES
+.PP
+\fI@sysconfdir@/porgrc\fR - porg configuration file
+.br
+\fI@LOGDIR@\fR - default porg log directory
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
+.SH SEE ALSO
+porg(8), porgrc(5)

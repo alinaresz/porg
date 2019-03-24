@@ -1,0 +1,196 @@
+Version 0.10 (17 May 2016)
+--------------------------
+
+	+ Fixed bug: Make variable names in porgrc file really case 
+	  insensitive. Now, "LOGDIR", "logdir" and "LogDiR" are all
+	  valid and equivalent (thanks Alain Bureau).
+
+
+Version 0.9 (16 April 2016)
+---------------------------
+
+	General changes:
+
+	+ Removed 'make logme' (no longer required to log the own porg 
+	  installation). Experimental. Please report any error.
+	+ Removed /mnt, /media and /cdrom from the default EXCLUDE (thanks
+	  Tomoaki Nishiyama).
+	+ Replace mode_t by int when calling va_arg() so that the code compiles
+	  in OSX 10.6 (thanks Tomoaki Nishiyama).
+	+ Allow lowercase variable names in porgrc (like 'include=...').
+
+	Changes in grop:
+
+	+ Bugfix: When running grop as root, save config file in directory
+	  '/root/.config/grop' (it was saved in the ordinary user home dir).
+	+ Do not allow running multiple grop instances at the same time.
+
+
+Version 0.8 (13 April 2015)
+---------------------------
+
+	General changes:
+
+	+ Fixed "double DESTDIR" bug (thanks Rene J.V. Bertin).
+	+ Added support for MacOS, and perhaps MacOS X (thanks Masahiro Kasahara
+	  and Rene J.V. Bertin).
+
+	Changes in porg:
+
+	+ Better option requirement checking.
+	+ When calculating total sizes of packages, sizes of hardlinks to installed
+	  files are counted only once (thanks Kardakov Slava).
+
+	Changes in scripts:
+
+	+ porgball: Support logging of tarballs from outside of current working
+	  directory (thanks Piotr Karbowski).
+	+ porgball: Don't crash when there's no logdir (thanks Piotr Karbowski).
+	+ paco2porg: Properly lowercase package names (thanks Kardakov Slava).
+
+
+Version 0.7 (25 June 2014)
+--------------------------
+
+	+ Added missing $(DESTDIR)s to Makefiles.
+
+	Changes in porg:
+
+	+ Check for command line option requirements.
+	+ Option -U requires -r.
+	+ Added short option -j for --log-missing.
+	+ Bugfix: Properly deal with big package sizes (> 4G).
+
+	Changes in grop:
+
+	+ Display a startup info dialog when reading big databases.
+	+ Added button "porg suffix" to the porgball creation dialog.
+	+ When showing results in the "Find file" dialog, double clicking on a
+	  row, or pressing of <Return>, makes the treeview in the main window 
+	  scroll to the selected package.
+	+ Improved the quality of the grop icon.
+
+	Changes in scripts:
+
+	+ Bugfix: porgball failed to process symbolic links to directories.
+	+ Bugfix: paco2porg failed to process missing files.
+
+
+Version 0.6 (16 June 2014)
+--------------------------
+
+	Changes in porg:
+
+	+ Bugfix: porg erroniously complained about command line option
+	  incompatibility when some options were doubled (like in '-rr').
+	+ Improved the man page and usage output of porg, organizing options by
+	  groups. Added a new section 'FILE NAMES WITH SPACES' to the man page. 
+	  Reading it is recommended.
+	+ Removed path /etc/mtab from the default EXCLUDE.
+	+ Search package info in configure.log if config.log is not found.
+	+ Ask the user when unlogging a package (option -U), unless option -b
+	  is enabled.
+
+	Changes in grop:
+
+	+ New icon.
+
+	Changes in scripts:
+
+	+ New command line options --no-porg-suffix and --logdir for porgball.
+	+ Let porgball extract files from ordinary tarballs (without suffix
+	  '.porg' in their names).
+	+ Honour DESTDIR when installing porg_bash_completion (thanks Veeti
+	  Paananen).
+
+
+Version 0.5 (11 June 2014)
+--------------------------
+
+	Changes in porg:
+
+	+ Improved checking of command line options compatibility.
+	+ Added paths {/run,/mnt,/media,/cdrom,/etc/mtab} to the default EXCLUDE.
+
+	Changes in grop:
+
+	+ Accept command line options (run 'grop -h' for more info).
+	+ Added a "Cancel" button to the porgball creation dialog. Fixed some minor
+	  bugs.
+	+ Save settings in ~/.config/grop/groprc instead of ~/.grop
+
+	Changes in scripts:
+
+	+ Bugfix: Porgball failed when trying to log extractions with porg.
+	+ Bugfix (#1): Paco2porg lost package information (thanks Leandro Nini).
+
+
+Version 0.4 (26 May 2014)
+-------------------------
+
+	+ Bugfix: In some cases, tmp files were not removed after installing a 
+	  package.
+	+ Bugfix: Some files were not registered when logging the own porg
+	  installation with "make logme".
+	+ Bugfix: The main window of grop was partially invisible.
+	+ Bugfix: Porgball failed to extract porgballs in some cases.
+	+ New feature: When installing a package, save the environment variables
+	  passed to ./configure, and not only the command line options.
+	+ New feature: Expand any environment variable (and not only $HOME),
+	  in variable LOGDIR in porgrc.
+	+ New feature: Added option '-x|--exact-version' to porg and porgball (see 
+	  man page).
+	+ Improved the code for searching for package information.
+	+ Added porg.spec.
+	+ Removed the (buggy) superporg script.
+
+
+Version 0.3 (19 May 2014)
+-------------------------
+
+	+ Readded GPL License and Copyright.
+	+ Bugfix: Properly log files with spaces in their names.
+	+ Bugfix: EXCLUDE variable in porgrc was not parsed correctly.
+	+ Bugfix: Skip sourcing of /etc/bash_completion when installing
+	  porg_bash_completion, to avoid errors from foreign software.
+
+
+Version 0.2 (23 April 2014)
+---------------------------
+
+	+ Several bugs fixed thanks to the contribution of Masahiro Kasahara:
+	  - paco2porg failed when importing paco logs with no logged files
+	  - porg hanged up when logging packages and the installer program calls 
+	    jemalloc
+	+ Fixed bug that prevented logging of files created by programs that don't
+	  terminate normally.
+	+ Fixed bug with resolution of relative paths.
+	+ Removed option '-g|--log-ignore-errors'.
+	+ Handle system calls openat(), linkat(), etc... when installing a package.
+	+ Do not handle *truncate() system calls when installing a package.
+	+ Removed porg.pc from distribution, as porg is not a library.
+
+
+Version 0.1 (16 March 2014)
+---------------------------
+
+	+ Removed question 3 of the FAQ, which discusses logging of directories.
+	+ Removed getopt from the distribution. Use native getopt.
+	+ Do not check for regex.h in configure (assume it is available).
+	+ Rewritten porgball in bash, and fixed some bugs in it.
+	+ Fixed bug in porg when installing packages with description spanning
+	  more than one line (thanks Gordon Findlay).
+
+
+Version 0.0 (14 March 2014)
+---------------------------
+
+Changes from the last version of paco:
+
+	+ Disabled the options for removing shared files when uninstalling a
+	  package, both in porg and grop. Now shared files are never removed,
+	  as it ougth to be.
+	+ Disabled listing of missing and shared files.
+	+ Simplification of the GUI.
+	+ Major code enhancements and cleanup.
+

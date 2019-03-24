@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Package Organizer
+GenericName=Package Organizer
+Comment=Manages software installed from source code
+Exec=grop
+Icon=/usr/share/pixmaps/grop.png
+StartupNotify=true
+Terminal=false
+Categories=System;PackageManager;Settings;GTK;

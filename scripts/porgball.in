@@ -1,0 +1,261 @@
+#!/bin/bash
+#-----------------------------------------------------------------------
+# porgball - binary package support for porg
+#
+# This file is part of the package porg
+# Copyright (C) 2015 David Ricart
+# For more information visit http://porg.sourceforge.net
+#-----------------------------------------------------------------------
+
+me=$(basename $0)
+
+sed_cmd=@SED@
+
+warn()	{ echo "$me: $*" >&2; exit_status=1; }
+die()	{ warn "$*"; exit 1; }
+say()	{ [ "$opt_verb" ] && echo "$*"; }
+
+
+do_help()
+{
+cat << EOF
+$me - binary package support for porg.
+
+Usage:
+  $me [OPTIONS] [<packages>|<porgballs>]
+
+General options:
+  -v, --verbose          Explain what is being done
+  -V, --version          Display version information and exit
+  -h, --help             Display this help message and exit
+  -L, --logdir=DIR       Porg log directory (default is $def_logdir)
+  
+Porgball creation options:
+  -a, --all              Create a porgball for each logged package
+  -X, --exact-version    Do not expand version of packages given as arguments
+  -d, --directory=DIR    Create the porgballs in DIR (default is '.')
+  -g, --gzip             Compress with gzip (default)
+  -b, --bzip2            Compress with bzip2
+  -x, --xz               Compress with xz
+  -<1..9>                Compression level (speed/quality balance)
+      --fast             Like -1: Compress faster
+      --best             Like -9: Compress better (default)
+  -f, --force            Force overwrite of existing output files
+  -t, --test             Test integrity of the porgball after creating it
+  -n, --no-porg-suffix   Do not append '.porg' suffix to the name of the
+                         porgballs.
+  
+Porgball extraction options:
+  -e, --extract          Extract the porgballs given as arguments
+  -d, --directory=DIR    Extract the files into root directory DIR
+                         (default is '/')
+  -l, --log              Log the extraction with porg
+
+Note:
+  Options cannot be joined up; for instance: '-af' is not correct,
+  type '-a -f' instead.
+
+EOF
+	exit 0
+}
+
+
+# 1st parameter ($1) = flag to test (-w, -r, ...)
+# 2nd parameter ($2) = directory
+#
+do_check_dir()
+{
+	[ -d "$2" ] || die "$2: No such directory"
+	eval [ $1 "$2" ] || die "$2: Permission denied"
+}
+
+
+# Extract a porgball
+
+do_extract()
+{
+	ball=$1
+
+	[ -e $ball ] || { warn "$ball: No such file"; return; }
+
+	if ! echo $ball | egrep --quiet '\.tar\.(gz|bz2|xz)$'; then
+		warn "$ball: Does not look like a porgball; skipped"
+		return
+	fi
+
+	say "Extracting files from $ball"
+
+	cmd="tar --directory=$destdir $opt_verb --auto-compress --extract --file=$ball"
+
+	if [ "$opt_log" ]; then
+		pkg=${ball%.tar.*}
+		pkg=${pkg%.porg}
+		pkg=${pkg##*/}
+		porg $opt_logdir $opt_verb --log --package="$pkg" -- $cmd
+	else
+		eval $cmd
+	fi
+
+	[ $? -eq 0 ] || exit_status=$?
+}
+
+
+# Create a porgball for a package logged in the porg database.
+
+do_create()
+{
+	pkg=$1
+	say "Processing $pkg"
+
+	# Write list of files logged by the package into tmpfile.
+	
+	> $tmpfile
+	for file in $(porg $opt_logdir --no-package-name --files $pkg); do
+		[ -e $file ] && echo $file >> $tmpfile
+	done
+	[ -s $tmpfile ] || { warn "No files to process"; return; }
+
+	# Get names of tar file and porgball
+
+	tarfile=$(echo $destdir/${pkg}${porg_suffix}.tar | tr -s /)
+	case $opt_prog in
+		bzip2)	suf=bz2;;
+		xz)		suf=xz;;
+		*)		suf=gz;;
+	esac
+	ball=${tarfile}.$suf
+
+	if [ -e $ball -a -z "$opt_force" ]; then
+		read -p "$me: $ball already exists; do you wish to overwrite it (y/N)? "
+		[ "$REPLY" = y -o "$REPLY" = Y ] || return
+	fi
+
+	# Create intermediate tar archive
+	
+	say "Creating $tarfile"
+	tar $opt_verb --create --file=$tarfile --ignore-failed-read --files-from=$tmpfile \
+		|| { exit_status=1; return; }
+
+	# Create porgball
+	
+	say "Creating $ball"
+	eval $opt_prog --force $opt_level $opt_verb $tarfile \
+		|| { exit_status=1; return; }
+
+	# Test integrity of the created porgball, if needed
+	
+	if [ "$opt_test" ]; then
+		say "Testing integrity of $ball"
+		eval $opt_prog $opt_verb --test $ball || exit_status=$?
+	fi
+}
+
+
+#-------
+
+exit_status=0
+
+# Defaults
+
+opt_prog=gzip
+opt_level=-9
+porg_suffix=".porg"
+
+# Get default log directory
+for dir in /etc /usr/local/etc /usr/etc /opt/etc; do
+	if [ -f $dir/porgrc ]; then
+		def_logdir=$($sed_cmd -n '/^LOGDIR=/ s///p' $dir/porgrc 2>/dev/null)
+		break;
+	fi
+done
+def_logdir=${def_logdir:-/var/log/porg}
+logdir=$def_logdir
+
+
+# Parse the command line
+
+while [ "$1" ]; do
+
+	case $1 in
+
+		-V|--version)		 porg --version | $sed_cmd "s/^porg/$me/"; exit 0;;
+		-h|--help)			 do_help;;
+		-t|--test)			 opt_test=-t;;
+		-v|--verbose)		 opt_verb=-v;;
+		-a|--all)			 opt_all=-a;;
+		-X|--exact-version)  opt_exact=-X;;
+		-g|--gzip)			 opt_prog=gzip;;
+		-b|--bzip2)			 opt_prog=bzip2;;
+		-x|--xz)			 opt_prog=xz;;
+		-[0-9])				 opt_level=$1;;
+		--fast)				 opt_level=-1;;
+		--best)				 opt_level=-9;;
+		-f|--force)			 opt_force=-f;;
+		-e|--extract)		 opt_extract=1;;
+		-l|--log)			 opt_log=1;;
+		-n|--no-porg-suffix) porg_suffix="";;
+
+		-L|--logdir)
+			[ "$2" ] && logdir=$2 || die "Option '$1' requires an argument"
+			shift
+			;;
+
+		--logdir=*)
+			logdir=${1#*=}
+			[ "$logdir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+
+		-d|-C|--directory|--dir|--root)
+			[ "$2" ] && destdir=$2 || die "Option '$1' requires an argument"
+			shift
+			;;
+
+		--directory=*|--dir=*|--root=*)
+			destdir=${1#*=}
+			[ "$destdir" ] || die "Option '${1%=*}' requires an argument"
+			;;
+
+		-*)	die "$1: Unrecognized option";;
+		
+		*)	args="$args $1";;
+
+	esac
+	shift
+done
+
+do_check_dir -r $logdir
+opt_logdir="--logdir=$logdir"
+
+
+# Extraction of porgballs
+
+if [ "$opt_extract" ]; then
+
+	[ "$args" ] || die "No arguments provided"
+
+	destdir=${destdir:-/}	# default dir = /
+	do_check_dir -w $destdir
+
+	for ball in $args; do
+		do_extract $ball
+	done
+
+# Creation of porgballs
+
+else
+	[ "$args" -o "$opt_all" ] || die "No arguments provided"
+
+	destdir=${destdir:-.}	# default dir = .
+	do_check_dir -w $destdir
+
+	# Create tmpfile and assure it's removed on exit
+	tmpfile=$(mktemp || echo /tmp/$me.$$)
+	trap 'rm -f $tmpfile' 0
+
+	for pkg in $(porg $opt_logdir $opt_verb $opt_exact $opt_all $args); do
+		do_create $pkg
+	done
+fi
+
+exit $exit_status
+

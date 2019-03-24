@@ -1,0 +1,26 @@
+##----------------------------------------------------------------------
+## @sysconfdir@/porgrc: configuration file for porg.
+##
+## Copyright (C) 2015 David Ricart <@PACKAGE_BUGREPORT@>
+##
+## See the man page of porgrc(5) for more information.
+##
+## Equivalent command line options are specified in brackets.
+##----------------------------------------------------------------------
+
+# Log directory.
+# [-L|--logdir]
+#LOGDIR=@LOGDIR@
+
+# Paths to scan when logging installations.
+# [-I|--include]
+#INCLUDE=/
+
+# Paths to exclude when logging installations.
+# [-E|--exclude]
+#EXCLUDE=@EXCLUDE@
+
+# Paths to skip when removing packages.
+# [-e|--skip]
+#REMOVE_SKIP=
+

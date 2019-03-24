@@ -1,0 +1,78 @@
+.\"----------------------------------------------------------------
+.\" porgrc.8 - porgrc man page
+.\"----------------------------------------------------------------
+.\" Copyright (C) 2015 David Ricart <@PACKAGE_BUGREPORT@>
+.\"----------------------------------------------------------------
+
+.TH porgrc "5" "@RELEASEDATE@" "porg @PACKAGE_VERSION@" "System"
+.SH NAME
+porgrc - configuration file for porg
+.SH SYNOPSIS
+\fB@sysconfdir@/porgrc\fR
+.SH DESCRIPTION
+.PP
+\fBporgrc\fR is the system-wide configuration file for \fBporg(8)\fR,
+the source code package organizer.
+.SH SYNTAX
+.PP
+The file consists of comments and key-value pairs. Comments are on separate
+lines that start with a \fB#\fR symbol. The key-value pairs are on the form:
+.PP
+\fBkey=value\fR
+.PP
+where \fBkey\fR contains no whitespace and no equal signs, and
+\fBvalue\fR will be all of the text after the equal sign until (but not
+including) the ending newline.
+.PP
+The name of \fBkey\fR is case insensitive (e.g. \fBINCLUDE\fR, \fBinclude\fR 
+and \fBINcludE\fR are equivalent).
+.SH OPTIONS
+The following options can be set. The equivalent command line options (if any),
+are listed in brackets:
+.TP
+\fBlogdir\fR [-L|--logdir]
+.br
+Base porg logs directory. Default is '@LOGDIR@'. Environment variables like
+$HOME are expanded at runtime.
+.TP
+\fBinclude\fR [-I|--include]
+.br
+Colon-separated list of paths to scan when logging the installation of a
+package. Default is '/'.
+.br
+Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
+more details.
+.TP
+\fBexclude\fR [-E|--exclude]
+.br
+Colon-separated list of paths to skip when logging the installation of a
+package. Default is '@EXCLUDE@'.
+.br
+Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
+more details.
+.TP
+\fBremove_skip\fR [-e|--skip]
+.br
+Colon-separated list of paths to skip when removing a
+package. Default is '' (all logged files are removed).
+.br
+Shell wildcards are allowed in the paths. See \fIPATH MATCHING\fR below for
+more details.
+.SH PATH MATCHING
+Variables \fB\include\fR, \fBexclude\fR and \fBremove_skip\fR accept a 
+colon-separated list of
+paths, each of which may contain shell-like wildcards (*, ? and [..]).
+Files are matched against each of those paths, following the standard
+shell-like expansion, but with the following exception: If a path in the list
+does not contain any wildcard, and it is a directory, it matches any file
+within that directory.
+.SH FILES
+.PP
+\fI@sysconfdir@/porgrc\fR - active configuration file
+.br
+\fI@prefix@/share/porg/porgrc\fR - sample configuration file
+.SH AUTHOR
+Written by David Ricart (@PACKAGE_BUGREPORT@)
+.SH SEE ALSO
+porg(8), porgball(8)
+
